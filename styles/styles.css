@@ -1,3 +1,12 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+ul, li {
+  list-style-type: none;
+}
+
 .container {
   width: 1000px;
   margin: 0 auto;
@@ -18,4 +27,35 @@
   height: 100%;
   background: #007bff;
   width: 0;
+}
+
+.type-ahead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.type-ahead .search {
+  box-sizing: border-box;
+  width: 240px;
+  height: 36px;
+  padding: 6px;
+}
+
+.type-ahead .dropdown {
+  width: 240px;
+  position: absolute;
+  top: 40px;
+}
+
+.type-ahead .dropdown .option {
+  box-sizing: border-box;
+  height: 30px;
+  padding: 6px;
+  border: 1px solid lightgrey;
+}
+
+.type-ahead .dropdown .option:hover {
+  background: lightgray;
 }
