@@ -3,7 +3,7 @@ function module_progress_bar(init = 0) {
   let _percent = init;
   let _subscriber = null;
   return {
-    subscribe: (fn) => {_subscriber = fn;},
+    subscribe: (fn) => { _subscriber = fn; },
     update: () => {
       for (let i = init; i <= 100; ++i) {
         _percent = i;
@@ -20,7 +20,7 @@ function view_progress_bar(module, selector) {
     module.update();
   };
   function render(percent) {
-     bar.style.width = percent + '%';
+    bar.style.width = percent + '%';
   }
   module.subscribe(render);
   render(0);
@@ -35,20 +35,20 @@ function module_type_ahead() {
   let _nameArr = [];
   let _subscriber = null;
   return {
-    subscribe: (fn) => {_subscriber = fn},
+    subscribe: (fn) => { _subscriber = fn },
     update: (input) => {
       let url = 'https://swapi.co/api/people/?search=' + ('' === input ? null : input);
       fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        let arr = data.results;
-        _nameArr.length = 0;
-        arr.forEach(elem => {
-          _nameArr.push(elem['name']);
-        });
-        _subscriber(_nameArr);
-      })
-      .catch(e => console.log(e)); 
+        .then(response => response.json())
+        .then(data => {
+          let arr = data.results;
+          _nameArr.length = 0;
+          arr.forEach(elem => {
+            _nameArr.push(elem['name']);
+          });
+          _subscriber(_nameArr);
+        })
+        .catch(e => console.log(e));
     }
   }
 }
@@ -80,11 +80,11 @@ function module_auto_complete(init = []) {
   let _data = [];
   let _subscriber = null;
   return {
-    subscribe: (fn) => {_subscriber = fn},
+    subscribe: (fn) => { _subscriber = fn },
     update: (input) => {
       input = input.toUpperCase();
       if ("" === input) _data = [];
-      else 
+      else
         _data = init.filter(item => item.toUpperCase().includes(input));
       _subscriber(_data);
     }
@@ -123,3 +123,61 @@ let givenOptions = [
 ];
 let mac = module_auto_complete(givenOptions);
 view_auto_complete(mac, ".auto-complete");
+
+// whack a mole
+// params (M's: number, click's: number)
+function module_whack_mole(m, click) {
+  let _score = 0;
+  let _arrM = [];
+  let _click = 0;
+  let _subscriber = null;
+
+  while (_arrM.length < m) {
+    let num = Math.floor(Math.random() * click);
+    if (!_arrM.includes(num)) _arrM.push(num);
+  }
+
+  // console.log(_arrM);
+
+  return {
+    subscribe: (fn) => { _subscriber = fn; },
+    update: (idx) => {
+      if (_click < click) {
+        if (_arrM.includes(idx)) _score++;
+        _click++;
+      } 
+      if (_click >= click) {
+        _subscriber(true, _score);
+      }
+    }
+  }
+}
+
+function view_whack_mole(module, selector) {
+  let container = document.querySelector(selector);
+  let grid = container.querySelector('.grid');
+  let score = container.querySelector('.score');
+  grid.addEventListener('click', e => {
+    let target = e.target;
+    let id = parseInt(target.getAttribute('id'));
+    module.update(id);
+  });
+  function render(done, num) {
+    score.innerHTML = num;
+    if (done) {
+      grid.style.display = 'none';
+      score.style.display = 'block';
+    } else {
+      grid.style.display = 'flex';
+      score.style.display = 'none';
+    }
+  }
+  module.subscribe(render);
+  render(false);
+}
+
+// whack a mole controller
+let mwm = module_whack_mole(3, 9);
+view_whack_mole(mwm, '.whack-mole');
+
+
