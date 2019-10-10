@@ -87,4 +87,6 @@ li {
   height    : 130px;
   background: yellow;
   cursor    : pointer;
+  text-align: center;
+  line-height: 130px;
 }

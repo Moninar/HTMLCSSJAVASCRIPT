@@ -132,24 +132,30 @@ function module_whack_mole(m, click) {
   let _click = 0;
   let _subscriber = null;
 
-  while (_arrM.length < m) {
-    let num = Math.floor(Math.random() * click);
-    if (!_arrM.includes(num)) _arrM.push(num);
+  function _shuffle() {
+    _arrM.length = 0;
+    while (_arrM.length < m) {
+      let num = Math.floor(Math.random() * click);
+      if (!_arrM.includes(num)) _arrM.push(num);
+    }
+    return _arrM.slice(0);
   }
-
-  // console.log(_arrM);
 
   return {
     subscribe: (fn) => { _subscriber = fn; },
     update: (idx) => {
       if (_click < click) {
         if (_arrM.includes(idx)) _score++;
-        _click++;
+        if (++_click >= click) {
+          _subscriber(true, _score, _arrM.slice(0));
+        } else {
+          _shuffle();
+          // console.log(_arrM.slice(0));
+          _subscriber(false, _score, _arrM.slice(0));
+        }
       } 
-      if (_click >= click) {
-        _subscriber(true, _score);
-      }
-    }
+    },
+    shuffle: () => _shuffle()
   }
 }
 
@@ -162,7 +168,8 @@ function view_whack_mole(module, selector) {
     let id = parseInt(target.getAttribute('id'));
     module.update(id);
   });
-  function render(done, num) {
+  function render(done, num, ms) {
+    console.log(ms);
     score.innerHTML = num;
     if (done) {
       grid.style.display = 'none';
@@ -170,10 +177,19 @@ function view_whack_mole(module, selector) {
     } else {
       grid.style.display = 'flex';
       score.style.display = 'none';
+      let children = [...grid.children];
+      console.log("children", grid.children);
+      children.forEach(child => {
+        if (ms.includes(parseInt(child.id))) {
+          child.innerHTML = 'M';
+        } else {
+          child.innerHTML = '';
+        }
+      })
     }
   }
   module.subscribe(render);
-  render(false);
+  render(false, 0, module.shuffle());
 }
 
 // whack a mole controller
